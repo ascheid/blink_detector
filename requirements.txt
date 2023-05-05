@@ -1,0 +1,14 @@
+dlib
+opencv-python-headless
+numpy
+pygame
+scipy
+matplotlib
+scikit-image
+scikit-learn
+ipython
+scikit-image
+dlib
+playsound
+pyobjc
+pyqt5

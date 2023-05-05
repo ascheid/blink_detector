@@ -1,21 +1,24 @@
 """
 This module contains functions related to camera operations.
 """
+import cv2
 
 def initialize_camera():
     """
     Initialize the camera.
     """
-    pass
+    cap = cv2.VideoCapture(0)
+    return cap
 
-def get_frame():
+def get_frame(cap):
     """
     Capture a single frame from the camera.
     """
-    pass
+    ret, frame = cap.read()
+    return frame
 
-def release_camera():
+def release_camera(cap):
     """
     Release the camera resources.
     """
-    pass
+    cap.release()
