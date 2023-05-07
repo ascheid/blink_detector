@@ -10,12 +10,25 @@ import dlib
 import cv2
 import threading
 import os
+import ctypes
+import sys
 
 def play_alarm(stop_event):
     # play an alarm sound and keep playing it until the stop event is set
     while not stop_event.is_set():
         print("[INFO] playing alarm.wav")
-        time.sleep(2)  # Add a delay to avoid printing too many times
+        if sys.platform.startswith('win'):
+            # Play the default sound for Windows
+            ctypes.windll.user32.MessageBeep(-1)
+        elif sys.platform.startswith('darwin'):
+            # Play the default sound for macOS
+            os.system("afplay /System/Library/Sounds/Glass.aiff")
+            time.sleep(0.5)
+        elif sys.platform.startswith('linux'):
+            # Play the default sound for Linux
+            os.system("aplay /usr/share/sounds/gnome/default/alerts/glass.ogg")
+        else:
+            raise ValueError("Unsupported platform")
 
 
 def eye_aspect_ratio(eye):
