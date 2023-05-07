@@ -12,14 +12,26 @@ import threading
 import os
 import ctypes
 import sys
+import logging
+
+# Set up logging configuration
+LOG_LEVEL = logging.DEBUG
+logging.basicConfig(
+    level=LOG_LEVEL,
+    format="%(asctime)s :%(levelname)s:%(funcName)s:%(lineno)d %(message)s",
+    datefmt="%d-%b-%y %H:%M:%S",
+)
+
+
 
 def play_alarm(stop_event):
     # play an alarm sound and keep playing it until the stop event is set
     while not stop_event.is_set():
-        print("[INFO] playing alarm.wav")
+        logging.info("playing alarm.wav")
         if sys.platform.startswith('win'):
             # Play the default sound for Windows
             ctypes.windll.user32.MessageBeep(-1)
+            time.sleep(0.5)
         elif sys.platform.startswith('darwin'):
             # Play the default sound for macOS
             os.system("afplay /System/Library/Sounds/Glass.aiff")
@@ -27,7 +39,9 @@ def play_alarm(stop_event):
         elif sys.platform.startswith('linux'):
             # Play the default sound for Linux
             os.system("aplay /usr/share/sounds/gnome/default/alerts/glass.ogg")
+            time.sleep(0.5)
         else:
+            logging.error("Unsupported platform")
             raise ValueError("Unsupported platform")
 
 
@@ -73,7 +87,7 @@ def main():
 
     # initialize dlib's face detector (HOG-based) and then create
     # the facial landmark predictor
-    print("[INFO] loading facial landmark predictor...")
+    logging.debug("loading facial landmark predictor...")
     detector = dlib.get_frontal_face_detector()
     predictor = dlib.shape_predictor(args["shape_predictor"])
  
@@ -83,8 +97,9 @@ def main():
     (rStart, rEnd) = face_utils.FACIAL_LANDMARKS_IDXS["right_eye"]
     
     # start the video stream thread
-    print("[INFO] starting video stream thread...")
-    print("[INFO] print q to quit...")
+    logging.info("starting video stream thread...")
+    logging.info("print q to quit...")
+
     if args['video'] == "camera":
         vs = VideoStream(src=0).start()
         fileStream = False
@@ -95,6 +110,7 @@ def main():
     time.sleep(1.0)
     
     # loop over frames from the video stream
+    logging.debug("starting main loop...")
     while True:
     	# if this is a file video stream, then we need to check if
     	# there any more frames left in the buffer to process
@@ -148,6 +164,7 @@ def main():
                 if COUNTER >= EYE_AR_CONSEC_FRAMES:
                     TOTAL += 1
                     BLINK_TIMESTAMPS.append(time.time())
+                    logging.debug(f"blink detected! blinks in the past 5s: {len(BLINK_TIMESTAMPS)}")
     
     			# reset the eye frame counter
                 COUNTER = 0
@@ -165,6 +182,7 @@ def main():
             
             # function to trigger alarm when user blinks more than 5 times in 5 seconds and alarm is not already on
             if len(BLINK_TIMESTAMPS) >= 5 and not ALARM_ON:
+                logging.debug("alarm triggered!")
                 ALARM_ON = True
                 ALARM_STOP_EVENT.clear()
                 ALARM_THREAD = threading.Thread(target=play_alarm, args=(ALARM_STOP_EVENT,))
@@ -175,13 +193,13 @@ def main():
             # if the alarm is on and the user blinks 5 times in 5 seconds, turn off the alarm
             # killing the thread running the alarm, and reset the blink timestamps and total
             if len(BLINK_TIMESTAMPS) >= 5 and ALARM_ON:
+                 logging.debug("alarm stopped!")
                  ALARM_ON = False
                  ALARM_STOP_EVENT.set()
                  if ALARM_THREAD is not None:
                      ALARM_THREAD.join()
                  BLINK_TIMESTAMPS = []
                  TOTAL = 0
-                 print("[INFO] Alarm stopped by user")
      
     	# show the frame
         cv2.imshow("Frame", frame)
