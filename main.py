@@ -8,6 +8,15 @@ import imutils
 import time
 import dlib
 import cv2
+import threading
+import os
+
+def play_alarm(stop_event):
+    # play an alarm sound and keep playing it until the stop event is set
+    while not stop_event.is_set():
+        print("[INFO] playing alarm.wav")
+        time.sleep(2)  # Add a delay to avoid printing too many times
+
 
 def eye_aspect_ratio(eye):
 	# compute the euclidean distances between the two sets of
@@ -40,6 +49,9 @@ def main():
     args = vars(ap.parse_args())
     EYE_AR_THRESH = args['threshold']
     EYE_AR_CONSEC_FRAMES = args['frames']
+    ALARM_ON = False
+    ALARM_THREAD = None
+    ALARM_STOP_EVENT = threading.Event()    
 
     # initialize the frame counters and the total number of blinks
     COUNTER = 0
@@ -135,6 +147,28 @@ def main():
     			cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
             cv2.putText(frame, "EAR: {:.2f}".format(ear), (300, 30),
     			cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+            cv2.putText(frame, "Alarm: {}".format(ALARM_ON), (10, 60),
+                cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+            
+            # function to trigger alarm when user blinks more than 5 times in 5 seconds and alarm is not already on
+            if len(BLINK_TIMESTAMPS) >= 5 and not ALARM_ON:
+                ALARM_ON = True
+                ALARM_STOP_EVENT.clear()
+                ALARM_THREAD = threading.Thread(target=play_alarm, args=(ALARM_STOP_EVENT,))
+                ALARM_THREAD.start()
+                BLINK_TIMESTAMPS = []
+                TOTAL = 0
+
+            # if the alarm is on and the user blinks 5 times in 5 seconds, turn off the alarm
+            # killing the thread running the alarm, and reset the blink timestamps and total
+            if len(BLINK_TIMESTAMPS) >= 5 and ALARM_ON:
+                 ALARM_ON = False
+                 ALARM_STOP_EVENT.set()
+                 if ALARM_THREAD is not None:
+                     ALARM_THREAD.join()
+                 BLINK_TIMESTAMPS = []
+                 TOTAL = 0
+                 print("[INFO] Alarm stopped by user")
      
     	# show the frame
         cv2.imshow("Frame", frame)
