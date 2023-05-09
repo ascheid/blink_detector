@@ -13,3 +13,4 @@ playsound
 pyobjc
 pyqt5
 imutils
+requests
