@@ -30,6 +30,28 @@ The algorithm calculates the Eye Aspect Ratio (EAR) to determine whether the eye
 - `TELEGRAM_CHAT_ID`: Your Telegram Chat ID.
 - `TELEGRAM_BOT_TOKEN`: Your Telegram Bot Token.
 
+## Dlib Installation Guide for Windows
+
+1. **Install CMake**: Download it from the [official website](https://cmake.org/download/). During installation, make sure to add CMake to the system PATH.
+
+2. **Install Build Tools for Visual Studio**: You can download it from the [official website](https://visualstudio.microsoft.com/visual-cpp-build-tools/). During installation, select "C++ build tools" to install the necessary C++ tools.
+
+3. **Install Python**: If you haven't already, you will need to install Python from the [official website](https://www.python.org/downloads/). Remember to check the box that adds Python to your PATH.
+
+4. **Install numpy**: Open a Command Prompt and run:
+    ```sh
+    pip install numpy
+    ```
+
+5. **Install dlib**:
+    ```sh
+    pip install dlib
+    ```
+    This will take a while as pip compiles dlib.
+
+If you encounter any issues, make sure that CMake and your C++ compiler are correctly installed and available in your PATH. You can verify this by running `cmake --version` and `cl` in a command prompt. You should see the CMake version and the Microsoft C/C++ Compiler version respectively.
+
+
 ## Usage
 
 1. Clone this repository.
