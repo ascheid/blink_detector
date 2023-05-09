@@ -60,3 +60,6 @@ If `TELEGRAM_CHAT_ID` and `TELEGRAM_BOT_TOKEN` are set, the program will send ph
 
 Logs are saved to `blink_detector.log` and are also output to the console. The log level is set to DEBUG. The log file is rotated when it reaches 10mb, and the two most recent log files are kept.
 
+## Disclaimer
+
+This program is provided as is, without any guarantees or warranty. The author is not responsible for any malfunction or damage or any other undesired effects that may occur as a result of using this program. No support will be provided. Use of the program is at the user's own risk. Please ensure that the program is suitable for your requirements before use.
